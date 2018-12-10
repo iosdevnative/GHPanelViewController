@@ -1325,7 +1325,7 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20.0;
  
     if(partialRevealHeight == 0.0) {
       partialRevealHeight = kPulleyCDefaultPartialRevealHeight;
-      
+    }
       CGFloat lowestStop = [[[self getStopList] firstObject] floatValue];
       
       for (NSNumber *num in [self getStopList]) {
@@ -1387,7 +1387,7 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20.0;
       [[self backgroundDimmingView] setFrame:[self backgroundDimmingViewFrameForDrawerPosition:[scrollView contentOffset].y + lowestStop]];
       
       [self syncDrawerContentViewSizeToMatchScrollPositionForSideDisplayMode];
-    }
+    
   }
 }
 
