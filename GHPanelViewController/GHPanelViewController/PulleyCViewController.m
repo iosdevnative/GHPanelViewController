@@ -427,6 +427,11 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20.0;
 }
 
 - (void)setDrawerContentViewController:(UIViewController *)drawerContentViewController {
+  if (!drawerContentViewController) {
+    //Setting drawerContentViewController to nil replaces it with a blank UIViewController
+    drawerContentViewController = [[UIViewController alloc] init];
+  }
+  
     if([self drawerContentViewController] != nil) {
         [[self drawerContentViewController] willMoveToParentViewController:nil];
         [[[self drawerContentViewController] view] removeFromSuperview];
@@ -878,6 +883,11 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20.0;
 }
 
 - (void)setDrawerContentViewController:(UIViewController *)controller animated:(BOOL)animated completion:(PulleyAnimationCompletionBlock)completion {
+  if (!controller) {
+    //Setting drawerContentViewController to nil replaces it with a blank UIViewController
+    controller = [[UIViewController alloc] init];
+  }
+  
   [[controller view] setFrame: [[self drawerContentContainer] bounds]];
   [[controller view] layoutIfNeeded];
   if (animated == true) {
