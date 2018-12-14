@@ -171,8 +171,9 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20.0;
   
   
   [[self delegate] drawerDisplayModeDidChange: self];
-  if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *) [self drawerContentViewController] respondsToSelector:@selector(drawerDisplayModeDidChange:)]) {
-    [((UIViewController<PulleyCDrawerViewControllerDelegate> *) [self drawerContentViewController]) drawerDisplayModeDidChange:self];
+  UIViewController *visibleDrawer = [self visibleDrawerViewController];
+  if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *) visibleDrawer respondsToSelector:@selector(drawerDisplayModeDidChange:)]) {
+    [((UIViewController<PulleyCDrawerViewControllerDelegate> *) visibleDrawer) drawerDisplayModeDidChange:self];
 
   }
   if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *) [self primaryContentViewController] respondsToSelector:@selector(drawerDisplayModeDidChange:)]) {
@@ -193,8 +194,9 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20.0;
     id newC = (PulleyCDisplayMode *)[change objectForKey:NSKeyValueChangeNewKey];
     if (![oldC isEqual:newC]) {
       [_delegate drawerDisplayModeDidChange: self];
-      if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *) _drawerContentViewController respondsToSelector:@selector(drawerDisplayModeDidChange:)]) {
-        [(UIViewController<PulleyCDrawerViewControllerDelegate> *) _drawerContentViewController drawerDisplayModeDidChange:self];
+      UIViewController *visibleDrawer = [self visibleDrawerViewController];
+      if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *) visibleDrawer respondsToSelector:@selector(drawerDisplayModeDidChange:)]) {
+        [(UIViewController<PulleyCDrawerViewControllerDelegate> *) visibleDrawer drawerDisplayModeDidChange:self];
         
       }
       if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *) _primaryContentViewController respondsToSelector:@selector(drawerDisplayModeDidChange:)]) {
@@ -318,15 +320,16 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20.0;
     CGFloat collapsedHeight = kPulleyCDefaultCollapsedHeight;
     CGFloat partialRevealHeight = kPulleyCDefaultPartialRevealHeight;
     
-    if ([[self drawerContentViewController] conformsToProtocol: @protocol( PulleyCDrawerViewControllerDelegate)]) {
-      if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *) _drawerContentViewController respondsToSelector:@selector(collapsedDrawerHeight:)]) {
-        collapsedHeight = [(UIViewController<PulleyCDrawerViewControllerDelegate> *) _drawerContentViewController collapsedDrawerHeight: safeAreaBottomInset];
+    UIViewController *visibleDrawer = [self visibleDrawerViewController];
+    if ([visibleDrawer conformsToProtocol: @protocol( PulleyCDrawerViewControllerDelegate)]) {
+      if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *) visibleDrawer respondsToSelector:@selector(collapsedDrawerHeight:)]) {
+        collapsedHeight = [(UIViewController<PulleyCDrawerViewControllerDelegate> *) visibleDrawer collapsedDrawerHeight: safeAreaBottomInset];
 
       } else {
         collapsedHeight = kPulleyCDefaultCollapsedHeight;
       }
-      if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *) _drawerContentViewController respondsToSelector:@selector(partialRevealDrawerHeight:)]) {
-      partialRevealHeight = [(UIViewController<PulleyCDrawerViewControllerDelegate> *) _drawerContentViewController partialRevealDrawerHeight: safeAreaBottomInset];
+      if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *) visibleDrawer respondsToSelector:@selector(partialRevealDrawerHeight:)]) {
+      partialRevealHeight = [(UIViewController<PulleyCDrawerViewControllerDelegate> *) visibleDrawer partialRevealDrawerHeight: safeAreaBottomInset];
       } else {
         partialRevealHeight = kPulleyCDefaultPartialRevealHeight;
       }
@@ -385,8 +388,9 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20.0;
   }
   
   [[self delegate] drawerChangedDistanceFromBottom:self distance:[[self drawerScrollView] contentOffset].y + lowestStop bottomSafeArea:[self pulleySafeAreaInsets].bottom];
-  if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] respondsToSelector:@selector(drawerChangedDistanceFromBottom:distance:bottomSafeArea:)]) {
-  [(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] drawerChangedDistanceFromBottom:self distance:[[self drawerScrollView] contentOffset].y + lowestStop  bottomSafeArea:[self pulleySafeAreaInsets].bottom];
+  UIViewController *visibleDrawer = [self visibleDrawerViewController];
+  if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer respondsToSelector:@selector(drawerChangedDistanceFromBottom:distance:bottomSafeArea:)]) {
+  [(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer drawerChangedDistanceFromBottom:self distance:[[self drawerScrollView] contentOffset].y + lowestStop  bottomSafeArea:[self pulleySafeAreaInsets].bottom];
   }
   if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self primaryContentViewController] respondsToSelector:@selector(drawerChangedDistanceFromBottom:distance:bottomSafeArea:)]) {
       [(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self primaryContentViewController] drawerChangedDistanceFromBottom:self distance:[[self drawerScrollView] contentOffset].y + lowestStop bottomSafeArea:[self pulleySafeAreaInsets].bottom];
@@ -437,6 +441,15 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20.0;
         [[self view] setNeedsLayout];
         [self setNeedsSupportedDrawerPositionsUpdate];
     }
+}
+
+- (UIViewController *)visibleDrawerViewController {
+  UIViewController *visibleViewController = [self drawerContentViewController];
+  if ([visibleViewController isKindOfClass:[UINavigationController class]]) {
+    UINavigationController *navControl = (UINavigationController *)visibleViewController;
+    visibleViewController = navControl.topViewController;
+  }
+  return visibleViewController;
 }
 
 - (CGFloat)bottomSafeSpace {
@@ -748,13 +761,14 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20.0;
     CGFloat collapsedHeight = kPulleyCDefaultCollapsedHeight;
     CGFloat partialRevealHeight = kPulleyCDefaultPartialRevealHeight;
     
-    if ([[self drawerContentViewController] conformsToProtocol:@protocol(PulleyCDrawerViewControllerDelegate)]) {
+    UIViewController *visibleDrawer = [self visibleDrawerViewController];
+    if ([visibleDrawer conformsToProtocol:@protocol(PulleyCDrawerViewControllerDelegate)]) {
       
-      if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] respondsToSelector:@selector(collapsedDrawerHeight:)]) {
-        collapsedHeight = [(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] collapsedDrawerHeight: [self pulleySafeAreaInsets].bottom];
+      if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer respondsToSelector:@selector(collapsedDrawerHeight:)]) {
+        collapsedHeight = [(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer collapsedDrawerHeight: [self pulleySafeAreaInsets].bottom];
       }
-      if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] respondsToSelector:@selector(partialRevealDrawerHeight:)]) {
-        partialRevealHeight = [(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] partialRevealDrawerHeight: [self pulleySafeAreaInsets].bottom];
+      if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer respondsToSelector:@selector(partialRevealDrawerHeight:)]) {
+        partialRevealHeight = [(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer partialRevealDrawerHeight: [self pulleySafeAreaInsets].bottom];
 
       }
 
@@ -788,11 +802,12 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20.0;
       [UIView animateWithDuration:[self animationDuration] delay:[self animationDelay] usingSpringWithDamping:[self animationSpringDamping] initialSpringVelocity:[self animationSpringInitialVelocity] options: [self animationOptions] animations:^{
         __weak PulleyCViewController * weakSelf = self;
         [[weakSelf drawerScrollView] setContentOffset: CGPointMake(0.0, stopToMoveTo - lowestStop) animated:false];
+        UIViewController *visibleDrawer = [weakSelf visibleDrawerViewController];
         
         [[weakSelf backgroundDimmingView] setFrame: [weakSelf backgroundDimmingViewFrameForDrawerPosition:stopToMoveTo]];
         [[weakSelf delegate] drawerPositionDidChange: weakSelf bottomSafeArea:[weakSelf pulleySafeAreaInsets].bottom];
-        if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)[weakSelf drawerContentViewController] respondsToSelector:@selector(drawerPositionDidChange:bottomSafeArea:)]) {
-            [(UIViewController<PulleyCDrawerViewControllerDelegate> *)[weakSelf drawerContentViewController] drawerPositionDidChange:weakSelf bottomSafeArea:[weakSelf pulleySafeAreaInsets].bottom];
+        if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer respondsToSelector:@selector(drawerPositionDidChange:bottomSafeArea:)]) {
+            [(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer drawerPositionDidChange:weakSelf bottomSafeArea:[weakSelf pulleySafeAreaInsets].bottom];
         }
         if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)[weakSelf primaryContentViewController] respondsToSelector:@selector(drawerPositionDidChange:bottomSafeArea:)]) {
           [(UIViewController<PulleyCDrawerViewControllerDelegate> *)[weakSelf primaryContentViewController] drawerPositionDidChange:weakSelf bottomSafeArea:[weakSelf pulleySafeAreaInsets].bottom];
@@ -812,8 +827,9 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20.0;
       [[self drawerScrollView] setContentOffset:CGPointMake(0.0, stopToMoveTo - lowestStop) animated:false];
       [[self backgroundDimmingView] setFrame: [self backgroundDimmingViewFrameForDrawerPosition:stopToMoveTo]];
       [[self delegate] drawerPositionDidChange:self bottomSafeArea:[self pulleySafeAreaInsets].bottom];
-      if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] respondsToSelector:@selector( drawerPositionDidChange:bottomSafeArea:)]) {
-              [(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] drawerPositionDidChange:self bottomSafeArea:[self pulleySafeAreaInsets].bottom];
+      UIViewController *visibleDrawer = [self visibleDrawerViewController];
+      if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer respondsToSelector:@selector( drawerPositionDidChange:bottomSafeArea:)]) {
+              [(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer drawerPositionDidChange:self bottomSafeArea:[self pulleySafeAreaInsets].bottom];
       }
       if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self primaryContentViewController] respondsToSelector:@selector(drawerPositionDidChange:bottomSafeArea:)]) {
               [(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self primaryContentViewController] drawerPositionDidChange:self bottomSafeArea:[self pulleySafeAreaInsets].bottom];
@@ -894,8 +910,9 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20.0;
   
   if([[self drawerContentViewController] conformsToProtocol:@protocol(PulleyCDrawerViewControllerDelegate)]) {
     
-    if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] respondsToSelector:@selector(supportedDrawerPositions)]) {
-          [self setSupportedPositions: [(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] supportedDrawerPositions]];
+    UIViewController *visibleDrawer = [self visibleDrawerViewController];
+    if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer respondsToSelector:@selector(supportedDrawerPositions)]) {
+          [self setSupportedPositions: [(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer supportedDrawerPositions]];
     }
   } else {
     [self setSupportedPositions: PulleyCPosition.all];
@@ -911,14 +928,15 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20.0;
   CGFloat collapsedHeight = kPulleyCDefaultCollapsedHeight;
   CGFloat partialRevealHeight = kPulleyCDefaultPartialRevealHeight;
   
-  if ([[self drawerContentViewController] conformsToProtocol:@protocol(PulleyCDrawerViewControllerDelegate)]) {
+  UIViewController *visibleDrawer = [self visibleDrawerViewController];
+  if ([visibleDrawer conformsToProtocol:@protocol(PulleyCDrawerViewControllerDelegate)]) {
     
-    if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] respondsToSelector:@selector(collapsedDrawerHeight:)]) {
-          collapsedHeight = [(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] collapsedDrawerHeight:[self pulleySafeAreaInsets].bottom];
+    if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer respondsToSelector:@selector(collapsedDrawerHeight:)]) {
+          collapsedHeight = [(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer collapsedDrawerHeight:[self pulleySafeAreaInsets].bottom];
     }
     
-    if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] respondsToSelector:@selector(partialRevealDrawerHeight:)]) {
-      partialRevealHeight = [(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] partialRevealDrawerHeight: [self pulleySafeAreaInsets].bottom];
+    if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer respondsToSelector:@selector(partialRevealDrawerHeight:)]) {
+      partialRevealHeight = [(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer partialRevealDrawerHeight: [self pulleySafeAreaInsets].bottom];
     }
 
 
@@ -1106,10 +1124,11 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20.0;
 }
 
 - (CGFloat)collapsedDrawerHeight:(CGFloat)bottomSafeArea {
-  if ([[self drawerContentViewController] conformsToProtocol: @protocol(PulleyCDrawerViewControllerDelegate)]) {
+  UIViewController *visibleDrawer = [self visibleDrawerViewController];
+  if ([visibleDrawer conformsToProtocol: @protocol(PulleyCDrawerViewControllerDelegate)]) {
     
-    if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] respondsToSelector:@selector(collapsedDrawerHeight:)]) {
-      return [(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] collapsedDrawerHeight:bottomSafeArea];
+    if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer respondsToSelector:@selector(collapsedDrawerHeight:)]) {
+      return [(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer collapsedDrawerHeight:bottomSafeArea];
     }
 
   }
@@ -1117,10 +1136,12 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20.0;
 }
 
 - (CGFloat)partialRevealDrawerHeight:(CGFloat)bottomSafeArea {
-  if ([[self drawerContentViewController] conformsToProtocol: @protocol(PulleyCDrawerViewControllerDelegate)]) {
+  UIViewController *visibleDrawer = [self visibleDrawerViewController];
+  
+  if ([visibleDrawer conformsToProtocol: @protocol(PulleyCDrawerViewControllerDelegate)]) {
     
-    if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] respondsToSelector:@selector(partialRevealDrawerHeight:)]) {
-          return [(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] partialRevealDrawerHeight:bottomSafeArea];
+    if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer respondsToSelector:@selector(partialRevealDrawerHeight:)]) {
+          return [(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer partialRevealDrawerHeight:bottomSafeArea];
     }
   }
     return 264.0 + bottomSafeArea;
@@ -1128,34 +1149,42 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20.0;
 }
 
 - (NSArray<PulleyCPosition *> *)supportedDrawerPositions {
-  if ([[self drawerContentViewController] conformsToProtocol: @protocol(PulleyCDrawerViewControllerDelegate)]) {
-    if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] respondsToSelector:@selector(supportedDrawerPositions)]) {
-         return [(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] supportedDrawerPositions];
+  UIViewController *visibleDrawer = [self visibleDrawerViewController];
+  
+  if ([visibleDrawer conformsToProtocol: @protocol(PulleyCDrawerViewControllerDelegate)]) {
+    if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer respondsToSelector:@selector(supportedDrawerPositions)]) {
+         return [(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer supportedDrawerPositions];
     }
   }
     return PulleyCPosition.all;
 }
 
 - (void)drawerPositionDidChange:(PulleyCViewController *)drawer bottomSafeArea:(CGFloat)bottomSafeArea {
-  if ([[self drawerContentViewController] conformsToProtocol: @protocol(PulleyCDrawerViewControllerDelegate)]) {
-    if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] respondsToSelector:@selector(drawerPositionDidChange:bottomSafeArea:)]) {
-    [(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] drawerPositionDidChange:drawer bottomSafeArea:bottomSafeArea];
+  UIViewController *visibleDrawer = [self visibleDrawerViewController];
+  
+  if ([visibleDrawer conformsToProtocol: @protocol(PulleyCDrawerViewControllerDelegate)]) {
+    if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer respondsToSelector:@selector(drawerPositionDidChange:bottomSafeArea:)]) {
+    [(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer drawerPositionDidChange:drawer bottomSafeArea:bottomSafeArea];
     }
   }
 }
 
 - (void)makeUIAdjustmentsForFullscreen:(CGFloat)progress bottomSafeArea:(CGFloat)safeArea {
-  if ([[self drawerContentViewController] conformsToProtocol: @protocol(PulleyCDrawerViewControllerDelegate)]) {
-    if([(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] respondsToSelector:@selector(makeUIAdjustmentsForFullscreen:bottomSafeArea:)]) {
-    [(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] makeUIAdjustmentsForFullscreen:progress bottomSafeArea:safeArea];
+  UIViewController *visibleDrawer = [self visibleDrawerViewController];
+  
+  if ([visibleDrawer conformsToProtocol: @protocol(PulleyCDrawerViewControllerDelegate)]) {
+    if([(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer respondsToSelector:@selector(makeUIAdjustmentsForFullscreen:bottomSafeArea:)]) {
+    [(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer makeUIAdjustmentsForFullscreen:progress bottomSafeArea:safeArea];
     }
   }
 }
 
 - (void)drawerChangedDistanceFromBottom:(PulleyCViewController *)drawer distance:(CGFloat)distance bottomSafeArea:(CGFloat)safeArea {
-  if ([[self drawerContentViewController] conformsToProtocol: @protocol(PulleyCDrawerViewControllerDelegate)]) {
-    if ([[self drawerContentViewController] respondsToSelector:@selector(drawerChangedDistanceFromBottom:distance:bottomSafeArea:)]) {
-       [(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] drawerChangedDistanceFromBottom:drawer distance:distance bottomSafeArea:safeArea];
+  UIViewController *visibleDrawer = [self visibleDrawerViewController];
+  
+  if ([visibleDrawer conformsToProtocol: @protocol(PulleyCDrawerViewControllerDelegate)]) {
+    if ([visibleDrawer respondsToSelector:@selector(drawerChangedDistanceFromBottom:distance:bottomSafeArea:)]) {
+       [(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer drawerChangedDistanceFromBottom:drawer distance:distance bottomSafeArea:safeArea];
     }
    
   }
@@ -1197,19 +1226,20 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20.0;
     CGFloat collapsedHeight = kPulleyCDefaultCollapsedHeight;
     CGFloat partialRevealHeight = kPulleyCDefaultPartialRevealHeight;
     
-    if ([[self drawerContentViewController] conformsToProtocol:@protocol(PulleyCDrawerViewControllerDelegate)]) {
+    UIViewController *visibleDrawer = [self visibleDrawerViewController];
+    if ([visibleDrawer conformsToProtocol:@protocol(PulleyCDrawerViewControllerDelegate)]) {
       
-      if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] respondsToSelector:@selector(collapsedDrawerHeight:)]) {
+      if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer respondsToSelector:@selector(collapsedDrawerHeight:)]) {
         
-        collapsedHeight = [(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] collapsedDrawerHeight:[self pulleySafeAreaInsets].bottom];
+        collapsedHeight = [(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer collapsedDrawerHeight:[self pulleySafeAreaInsets].bottom];
       }
 
       if (collapsedHeight) {
         collapsedHeight = kPulleyCDefaultCollapsedHeight;
       }
       
-      if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] respondsToSelector:@selector(partialRevealDrawerHeight:)]) {
-              partialRevealHeight = [(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] partialRevealDrawerHeight:[self pulleySafeAreaInsets].bottom];
+      if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer respondsToSelector:@selector(partialRevealDrawerHeight:)]) {
+              partialRevealHeight = [(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer partialRevealDrawerHeight:[self pulleySafeAreaInsets].bottom];
       }
 
       if (partialRevealHeight) {
@@ -1333,9 +1363,10 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20.0;
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
   if([scrollView isEqual: [self drawerScrollView]]) {
 
+    UIViewController *visibleDrawer = [self visibleDrawerViewController];
     CGFloat partialRevealHeight = 0.0;
-      if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] respondsToSelector:@selector(partialRevealDrawerHeight:)]) {
-           [(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] partialRevealDrawerHeight:[self pulleySafeAreaInsets].bottom];
+      if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer respondsToSelector:@selector(partialRevealDrawerHeight:)]) {
+           [(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer partialRevealDrawerHeight:[self pulleySafeAreaInsets].bottom];
       }
  
     if(partialRevealHeight == 0.0) {
@@ -1359,8 +1390,8 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20.0;
           progress = ([scrollView contentOffset].y - (partialRevealHeight - lowestStop)) / (fullRevealHeight - (partialRevealHeight));
         }
         [[self delegate] makeUIAdjustmentsForFullscreen:progress bottomSafeArea:[self pulleySafeAreaInsets].bottom];
-        if([(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] respondsToSelector:@selector(makeUIAdjustmentsForFullscreen:bottomSafeArea:)]) {
-                  [(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] makeUIAdjustmentsForFullscreen:progress bottomSafeArea:[self pulleySafeAreaInsets].bottom];
+        if([(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer respondsToSelector:@selector(makeUIAdjustmentsForFullscreen:bottomSafeArea:)]) {
+                  [(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer makeUIAdjustmentsForFullscreen:progress bottomSafeArea:[self pulleySafeAreaInsets].bottom];
           
         }
         if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self primaryContentViewController] respondsToSelector:@selector(makeUIAdjustmentsForFullscreen:bottomSafeArea:)]) {
@@ -1376,8 +1407,8 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20.0;
         if ([[self backgroundDimmingView] alpha] >= 0.001) {
           [[self backgroundDimmingView] setAlpha:0.0];
           [[self delegate] makeUIAdjustmentsForFullscreen:0.0 bottomSafeArea:[self pulleySafeAreaInsets].bottom];
-          if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] respondsToSelector:@selector(makeUIAdjustmentsForFullscreen:bottomSafeArea:)]) {
-                      [(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] makeUIAdjustmentsForFullscreen:0.0 bottomSafeArea:[self pulleySafeAreaInsets].bottom];
+          if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer respondsToSelector:@selector(makeUIAdjustmentsForFullscreen:bottomSafeArea:)]) {
+                      [(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer makeUIAdjustmentsForFullscreen:0.0 bottomSafeArea:[self pulleySafeAreaInsets].bottom];
           }
           if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self primaryContentViewController] respondsToSelector:@selector(makeUIAdjustmentsForFullscreen:bottomSafeArea:)]) {
                       [(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self primaryContentViewController] makeUIAdjustmentsForFullscreen:0.0 bottomSafeArea:[self pulleySafeAreaInsets].bottom];
@@ -1391,8 +1422,8 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20.0;
       }
       [[self delegate] drawerChangedDistanceFromBottom:self distance:[scrollView contentOffset].y + lowestStop bottomSafeArea:[self pulleySafeAreaInsets].bottom];
       
-      if([(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] respondsToSelector:@selector(drawerChangedDistanceFromBottom:distance:bottomSafeArea:)]) {
-        [(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] drawerChangedDistanceFromBottom:self distance:[scrollView contentOffset].y + lowestStop bottomSafeArea:[self pulleySafeAreaInsets].bottom];
+      if([(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer respondsToSelector:@selector(drawerChangedDistanceFromBottom:distance:bottomSafeArea:)]) {
+        [(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer drawerChangedDistanceFromBottom:self distance:[scrollView contentOffset].y + lowestStop bottomSafeArea:[self pulleySafeAreaInsets].bottom];
       }
       if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self primaryContentViewController] respondsToSelector:@selector(drawerChangedDistanceFromBottom:distance:bottomSafeArea:)]) {
         [(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self primaryContentViewController] drawerChangedDistanceFromBottom:self distance:[scrollView contentOffset].y + lowestStop bottomSafeArea:[self pulleySafeAreaInsets].bottom];
