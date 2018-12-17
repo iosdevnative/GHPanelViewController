@@ -1447,6 +1447,10 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20.0;
   }
 }
 
+- (void) isBottomDrawerHidden:(BOOL) flag {
+    [[self drawerScrollView] setHidden:true];
+}
+
 
 - (void)dealloc {
   [self removeObserver:self forKeyPath:@"currentDisplayMode"];
