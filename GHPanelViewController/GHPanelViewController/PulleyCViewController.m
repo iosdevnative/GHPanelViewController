@@ -1326,7 +1326,7 @@ static CGFloat const kPulleyCBounceOverflowMargin = 0;
             
             if (fabs(distance) > [snapModeToUse rawValue]) {
                 if (distance < 0) {
-                    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"rawValue != %@", PulleyCPosition.closed];
+                    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"self != %@", PulleyCPosition.closed];
                     
                     NSArray<PulleyCPosition *> *orderedSupportedDrawerPositions = [[[self supportedPositions] sortedArrayUsingComparator:^NSComparisonResult(PulleyCPosition *obj1, PulleyCPosition *obj2) {
                         if (obj1.rawValue < obj2.rawValue) {
