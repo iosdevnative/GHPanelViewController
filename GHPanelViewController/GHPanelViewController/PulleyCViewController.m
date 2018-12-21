@@ -710,7 +710,7 @@ static CGFloat const kPulleyCBounceOverflowMargin = 0;
 
 
 
-- (instancetype) initWithContentViewController:(UIViewController *) contentViewController drawerViewController:(UIViewController *) drawer {
+- (instancetype) intiWithContentViewController:(UIViewController *) contentViewController drawerViewController:(UIViewController *) drawer {
     if ([super initWithNibName:nil bundle:nil]) {
         [self setDefault];
         [self setPrimaryContentViewController:contentViewController];
@@ -920,10 +920,10 @@ static CGFloat const kPulleyCBounceOverflowMargin = 0;
 
 
 - (void) setNeedsSupportedDrawerPositionsUpdate {
-  
-  UIViewController *visibleDrawer = [self visibleDrawerViewController];
-    if([visibleDrawer conformsToProtocol:@protocol(PulleyCDrawerViewControllerDelegate)]) {
+    
+    if([[self drawerContentViewController] conformsToProtocol:@protocol(PulleyCDrawerViewControllerDelegate)]) {
         
+        UIViewController *visibleDrawer = [self visibleDrawerViewController];
         if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer respondsToSelector:@selector(supportedDrawerPositions)]) {
             [self setSupportedPositions: [(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer supportedDrawerPositions]];
         }
