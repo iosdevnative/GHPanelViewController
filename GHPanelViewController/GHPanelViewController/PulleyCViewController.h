@@ -170,7 +170,7 @@ typedef struct DrawerDistanceFromBottom {
  
  - returns: A newly created Pulley drawer.
  */
-- (instancetype) initWithContentViewController:(UIViewController *) contentViewController drawerViewController:(UIViewController *) drawer;
+- (instancetype) intiWithContentViewController:(UIViewController *) contentViewController drawerViewController:(UIViewController *) drawer;
 /**
  Initialize the drawer controller from Interface Builder.
  

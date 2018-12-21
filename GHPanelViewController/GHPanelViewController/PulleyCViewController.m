@@ -712,9 +712,9 @@ static CGFloat const kPulleyCBounceOverflowMargin = 0;
 
 - (instancetype) intiWithContentViewController:(UIViewController *) contentViewController drawerViewController:(UIViewController *) drawer {
     if ([super initWithNibName:nil bundle:nil]) {
-        [self setDefault];
         [self setPrimaryContentViewController:contentViewController];
         [self setDrawerContentViewController:drawer];
+        [self setDefault];
     }
     return self;
 }
