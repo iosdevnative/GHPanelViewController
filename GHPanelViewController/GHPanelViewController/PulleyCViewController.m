@@ -777,7 +777,6 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20.0;
 
       }
 
-
     }
     
     CGFloat stopToMoveTo;
@@ -917,19 +916,16 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20.0;
 
 
 - (void) setNeedsSupportedDrawerPositionsUpdate {
-  
-  if([[self drawerContentViewController] conformsToProtocol:@protocol(PulleyCDrawerViewControllerDelegate)]) {
-    
-    UIViewController *visibleDrawer = [self visibleDrawerViewController];
-    if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer respondsToSelector:@selector(supportedDrawerPositions)]) {
-          [self setSupportedPositions: [(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer supportedDrawerPositions]];
+  UIViewController *visibleDrawer = [self visibleDrawerViewController];
+    if([visibleDrawer conformsToProtocol:@protocol(PulleyCDrawerViewControllerDelegate)]) {
+        
+        if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer respondsToSelector:@selector(supportedDrawerPositions)]) {
+            [self setSupportedPositions: [(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer supportedDrawerPositions]];
+        }
+    } else {
+        [self setSupportedPositions: PulleyCPosition.all];
     }
-  } else {
-    [self setSupportedPositions: PulleyCPosition.all];
-  }
 }
-
-
 
 
 - (NSArray<NSNumber *> *)getStopList {
@@ -948,7 +944,6 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20.0;
     if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer respondsToSelector:@selector(partialRevealDrawerHeight:)]) {
       partialRevealHeight = [(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer partialRevealDrawerHeight: [self pulleySafeAreaInsets].bottom];
     }
-
 
   }
   
@@ -969,8 +964,6 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20.0;
 - (void) enforceCanScrollDrawer {
   if ([self isViewLoaded]) {
     [[self drawerScrollView] setScrollEnabled: [self allowsUserDrawerPositionChange] && [self supportedPositions].count > 1];
-    
-    
   }
   
 }
@@ -1155,8 +1148,25 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20.0;
     }
   }
     return 264.0 + bottomSafeArea;
-  
 }
+
+-(CGFloat)drawerHeightForPosition:(PulleyCPosition *)position {
+  if (![self.supportedPositions containsObject:position]) {
+    return 0.0;
+  }
+  
+  CGFloat bottomSafeArea = [self pulleySafeAreaInsets].bottom;
+  if ([position isEqual:PulleyCPosition.open]) {
+    return [self heightOfOpenDrawer];
+  } else if ([position isEqual:PulleyCPosition.partiallyRevealed]) {
+    return [self partialRevealDrawerHeight:bottomSafeArea];
+  } else if ([position isEqual:PulleyCPosition.collapsed]) {
+    return [self collapsedDrawerHeight:bottomSafeArea];
+  } else {
+    return 0.0;
+  }
+}
+
 
 - (NSArray<PulleyCPosition *> *)supportedDrawerPositions {
   UIViewController *visibleDrawer = [self visibleDrawerViewController];
@@ -1233,123 +1243,72 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20.0;
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
   if ([scrollView isEqual:[self drawerScrollView]]) {
-    CGFloat collapsedHeight = kPulleyCDefaultCollapsedHeight;
-    CGFloat partialRevealHeight = kPulleyCDefaultPartialRevealHeight;
+    PulleyCPosition *currentPosition = [self drawerPosition];
+    NSMutableArray<NSNumber *> *drawerStops = [self getStopList].mutableCopy;
+    CGFloat currentDrawerPositionStop = [self drawerHeightForPosition:currentPosition];
+    NSArray <PulleyCPosition *>*supportedPositions = [self supportedPositions];
     
-    UIViewController *visibleDrawer = [self visibleDrawerViewController];
-    if ([visibleDrawer conformsToProtocol:@protocol(PulleyCDrawerViewControllerDelegate)]) {
-      
-      if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer respondsToSelector:@selector(collapsedDrawerHeight:)]) {
-        
-        collapsedHeight = [(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer collapsedDrawerHeight:[self pulleySafeAreaInsets].bottom];
-      }
-
-      if (collapsedHeight) {
-        collapsedHeight = kPulleyCDefaultCollapsedHeight;
-      }
-      
-      if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer respondsToSelector:@selector(partialRevealDrawerHeight:)]) {
-              partialRevealHeight = [(UIViewController<PulleyCDrawerViewControllerDelegate> *)visibleDrawer partialRevealDrawerHeight:[self pulleySafeAreaInsets].bottom];
-      }
-
-      if (partialRevealHeight) {
-        partialRevealHeight = kPulleyCDefaultPartialRevealHeight;
-      }
+    [drawerStops sortUsingSelector:@selector(compare:)];
+    //Remove .closed, since we don't set the drawer to closed except by code.
+    if ([drawerStops.firstObject isEqual:@(0.0)]) {
+      [drawerStops removeObjectAtIndex:0];
     }
     
-    
-    NSMutableArray<NSNumber *> *drawerStops = [NSMutableArray<NSNumber *> array];
-    CGFloat currentDrawerPositionStop = 0.0;
-    if ([[self supportedPositions] containsObject:PulleyCPosition.open]) {
-      [drawerStops addObject: [NSNumber numberWithFloat: [self heightOfOpenDrawer]]];
-      if ([[self drawerPosition] isEqual: PulleyCPosition.open]) {
-        currentDrawerPositionStop = [[drawerStops lastObject] floatValue];
-      }
-    }
-    
-    if ([[self supportedPositions] containsObject:PulleyCPosition.collapsed]) {
-      [drawerStops addObject: [NSNumber numberWithFloat:collapsedHeight]];
-      if ([[self drawerPosition] isEqual: PulleyCPosition.collapsed]) {
-        currentDrawerPositionStop = [[drawerStops lastObject] floatValue];
-      }
-    }
-    
-    if ([[self supportedPositions] containsObject:PulleyCPosition.partiallyRevealed]) {
-      [drawerStops addObject: [NSNumber numberWithFloat: partialRevealHeight]];
-      if ([[self drawerPosition] isEqual: PulleyCPosition.partiallyRevealed]) {
-        currentDrawerPositionStop = [[drawerStops lastObject] floatValue];
-      }
-    }
-    
-    CGFloat lowestStop = [[[self getStopList] firstObject] floatValue];
-    
-    for (NSNumber *num in [self getStopList]) {
-      if ([num floatValue] < lowestStop ) {
-        lowestStop = [num floatValue];
-      }
-    }
-    
-    CGFloat distanceFromBottomOfView = lowestStop + [self lastDragTargetContentOffset].y;
+    CGFloat lowestStop = [[drawerStops firstObject] floatValue];
+    CGFloat lastDragOffset = [self lastDragTargetContentOffset].y;
+    CGFloat distanceFromBottomOfView = lowestStop + lastDragOffset;
     
     CGFloat currentClosestStop = lowestStop;
-    
     for (NSNumber *currentStop in drawerStops) {
       if (fabs([currentStop floatValue] - distanceFromBottomOfView) < fabs(currentClosestStop - distanceFromBottomOfView)) {
         currentClosestStop = [currentStop floatValue];
       }
     }
     
-    PulleyCPosition *closestValidDrawerPosition = [self drawerPosition];
-    if (fabs(currentClosestStop - [self heightOfOpenDrawer]) <= FLT_EPSILON && [[self supportedPositions] containsObject:PulleyCPosition.open]) {
+    PulleyCPosition *closestValidDrawerPosition = currentPosition;
+    if (fabs(currentClosestStop - [self heightOfOpenDrawer]) <= FLT_EPSILON && [supportedPositions containsObject:PulleyCPosition.open]) {
       closestValidDrawerPosition = PulleyCPosition.open;
-    } else if (fabs(currentClosestStop - collapsedHeight) <= FLT_EPSILON && [[self supportedPositions] containsObject:PulleyCPosition.collapsed]) {
+    } else if (fabs(currentClosestStop - [self drawerHeightForPosition:PulleyCPosition.collapsed]) <= FLT_EPSILON && [supportedPositions containsObject:PulleyCPosition.collapsed]) {
       closestValidDrawerPosition = PulleyCPosition.collapsed;
-    } else if ([[self supportedPositions] containsObject:PulleyCPosition.partiallyRevealed]) {
+    } else if ([supportedPositions containsObject:PulleyCPosition.partiallyRevealed]) {
       closestValidDrawerPosition = PulleyCPosition.partiallyRevealed;
     }
     
-    PulleyCSnapMode *snapModeToUse = [closestValidDrawerPosition isEqual:[self drawerPosition]] ? [self  snapMode] : [PulleyCSnapMode nearestPosition];
+    PulleyCSnapMode *snapModeToUse = [closestValidDrawerPosition isEqual:currentPosition] ? [self  snapMode] : [PulleyCSnapMode nearestPosition];
     
     if ([snapModeToUse isEqual: [PulleyCSnapMode nearestPosition]]) {
       [self setDrawerPosition:closestValidDrawerPosition animated:true];
     } else {
       CGFloat distance = currentDrawerPositionStop - distanceFromBottomOfView;
-      PulleyCPosition *positionToSnapTo = [self drawerPosition];
+      PulleyCPosition *positionToSnapTo = currentPosition;
       
-      if (fabs(distance) > [snapModeToUse rawValue]) {
+      CGFloat snapModeVal = [snapModeToUse rawValue];
+      if (fabs(distance) > snapModeVal) {
         if (distance < 0) {
-          NSPredicate *predicate = [NSPredicate predicateWithFormat:@"rawValue != %@", PulleyCPosition.closed];
-
-          NSArray<PulleyCPosition *> *orderedSupportedDrawerPositions = [[[self supportedPositions] sortedArrayUsingComparator:^NSComparisonResult(PulleyCPosition *obj1, PulleyCPosition *obj2) {
-            if (obj1.rawValue < obj2.rawValue) {
-              return NSOrderedAscending;
-            } else if (obj1.rawValue > obj2.rawValue) {
-              return NSOrderedDescending;
-            } else {
-              return NSOrderedSame;
-            }
-          }] filteredArrayUsingPredicate:predicate];
+          //Remove .closed from the possibles list because .closed should only be set by code, not by dragging
+          NSPredicate *predicate = [NSPredicate predicateWithFormat:@"self != %@", PulleyCPosition.closed];
           
+          NSSortDescriptor *rawValSort = [NSSortDescriptor sortDescriptorWithKey:@"rawValue" ascending:YES];
+          NSArray<PulleyCPosition *> *orderedSupportedDrawerPositions = [[supportedPositions sortedArrayUsingDescriptors:@[rawValSort]] filteredArrayUsingPredicate:predicate];
+          
+          int currentPositionVal = currentPosition.rawValue;
           for (PulleyCPosition *position in orderedSupportedDrawerPositions) {
-            if (position.rawValue > [self drawerPosition].rawValue) {
+            int positionVal = position.rawValue;
+            if (positionVal > currentPositionVal) {
               positionToSnapTo = position;
               break;
             }
           }
         } else {
-          NSPredicate *predicate = [NSPredicate predicateWithFormat:@"rawValue != %@", PulleyCPosition.closed];
+          NSPredicate *predicate = [NSPredicate predicateWithFormat:@"self != %@", PulleyCPosition.closed];
+          //NSPredicate *predicate = [NSPredicate predicateWithFormat:@"TRUEPREDICATE"];
           
-          NSArray<PulleyCPosition *> *orderedSupportedDrawerPositions = [[[self supportedPositions] sortedArrayUsingComparator:^NSComparisonResult(PulleyCPosition *obj1, PulleyCPosition *obj2) {
-            if (obj1.rawValue > obj2.rawValue) {
-              return NSOrderedAscending;
-            } else if (obj1.rawValue < obj2.rawValue) {
-              return NSOrderedDescending;
-            } else {
-              return NSOrderedSame;
-            }
-          }] filteredArrayUsingPredicate:predicate];
+          NSSortDescriptor *rawValDescending = [NSSortDescriptor sortDescriptorWithKey:@"rawValue" ascending:NO];
+          NSArray<PulleyCPosition *> *orderedSupportedDrawerPositions = [[supportedPositions sortedArrayUsingDescriptors:@[rawValDescending]] filteredArrayUsingPredicate:predicate];
+          int currentPositionVal = currentPosition.rawValue;
           for (PulleyCPosition *position in orderedSupportedDrawerPositions) {
-            if (position.rawValue < [self drawerPosition].rawValue) {
+            int positionVal = position.rawValue;
+            if (positionVal < currentPositionVal) {
               positionToSnapTo = position;
               break;
             }
@@ -1358,7 +1317,6 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20.0;
       }
       [self setDrawerPosition:positionToSnapTo animated:true];
     }
-    
   }
 }
 
