@@ -657,7 +657,7 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20.0;
         [self setDrawerPosition:_drawerPosition animated:true completion:nil];
       } else {
         PulleyCPosition *lowestDrawerState;
-        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"rawValue != %@", PulleyCPosition.closed];
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"self != %@", PulleyCPosition.closed];
         NSArray<PulleyCPosition *> *filteredArray = [[self supportedPositions] filteredArrayUsingPredicate:predicate];
         lowestDrawerState = [[filteredArray sortedArrayUsingComparator:^NSComparisonResult(PulleyCPosition *obj1, PulleyCPosition *obj2) {
           if (obj1.rawValue < obj2.rawValue) {
@@ -708,7 +708,7 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20.0;
 
 
 
-- (instancetype) intiWithContentViewController:(UIViewController *) contentViewController drawerViewController:(UIViewController *) drawer {
+- (instancetype) initWithContentViewController:(UIViewController *) contentViewController drawerViewController:(UIViewController *) drawer {
   if ([super initWithNibName:nil bundle:nil]) {
     [self setPrimaryContentViewController:contentViewController];
     [self setDrawerContentViewController:drawer];
