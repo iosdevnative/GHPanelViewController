@@ -1067,32 +1067,34 @@ static CGFloat const kPulleyCBounceOverflowMargin = 0;
 
 - (void)bounceDrawer:(CGFloat)height speedMultiplier:(CGFloat)multimplier {
     if ([[self drawerPosition] isEqual: PulleyCPosition.collapsed] || [[self drawerPosition] isEqual: PulleyCPosition.partiallyRevealed]) {
-        if([[self currentDisplayMode] isEqual: PulleyCDisplayMode.drawer]) {
-            CGRect drawerStartingBounds = [[self drawerScrollView] bounds];
-            NSArray<NSNumber *> *factors = [NSArray arrayWithObjects: @0, @32, @60, @83, @100, @114, @124, @128, @128, @124, @114, @100, @83, @60, @32, @0, @24, @42, @54, @62, @64, @62, @54, @42, @24, @0, @18, @28, @32, @28, @18, @0, nil];
-            NSMutableArray<NSNumber *> *values = [NSMutableArray<NSNumber *> array];
-            
-            for (NSNumber *obj in factors) {
-                [values addObject: [NSNumber numberWithFloat: drawerStartingBounds.origin.y + (([obj floatValue] / 128.0) * height)]];
-            }
-            CAKeyframeAnimation *animation = [[CAKeyframeAnimation alloc] init];
-            [animation setKeyPath:@"bounds.origin.y"];
-            [animation setRepeatCount:1];
-            [animation setDuration: (32.0/30.0) * multimplier];
-            [animation setFillMode:kCAFillModeBackwards];
-            [animation setValues: values];
-            [animation setRemovedOnCompletion: true];
-            [animation setAutoreverses:false];
-            
-            [[[self drawerScrollView] layer] addAnimation:animation forKey:@"bounceAnimation"];
-        } else {
-            NSLog(@"Pulley: Error: You can only bounce the drawer when it's in the .drawer display mode.");
-        }
-    } else {
         NSLog(@"Pulley: Error: You can only bounce the drawer when it's in the collapsed or partially revealed position.");
-        
+        return;
     }
+    
+    if([[self currentDisplayMode] isEqual: PulleyCDisplayMode.drawer]) {
+        NSLog(@"Pulley: Error: You can only bounce the drawer when it's in the .drawer display mode.");
+        return;
+    }
+    
+    CGRect drawerStartingBounds = [[self drawerScrollView] bounds];
+    NSArray<NSNumber *> *factors = [NSArray arrayWithObjects: @0, @32, @60, @83, @100, @114, @124, @128, @128, @124, @114, @100, @83, @60, @32, @0, @24, @42, @54, @62, @64, @62, @54, @42, @24, @0, @18, @28, @32, @28, @18, @0, nil];
+    NSMutableArray<NSNumber *> *values = [NSMutableArray<NSNumber *> array];
+    
+    for (NSNumber *obj in factors) {
+        [values addObject: [NSNumber numberWithFloat: drawerStartingBounds.origin.y + (([obj floatValue] / 128.0) * height)]];
+    }
+    CAKeyframeAnimation *animation = [[CAKeyframeAnimation alloc] init];
+    [animation setKeyPath:@"bounds.origin.y"];
+    [animation setRepeatCount:1];
+    [animation setDuration: (32.0/30.0) * multimplier];
+    [animation setFillMode:kCAFillModeBackwards];
+    [animation setValues: values];
+    [animation setRemovedOnCompletion: true];
+    [animation setAutoreverses:false];
+    
+    [[[self drawerScrollView] layer] addAnimation:animation forKey:@"bounceAnimation"];
 }
+
 
 - (CGRect) backgroundDimmingViewFrameForDrawerPosition:(CGFloat)drawerPosition {
     CGFloat cutoutHeight = (2 * [self drawerCornerRadius]);
