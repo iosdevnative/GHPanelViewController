@@ -11,12 +11,11 @@
 
 
 #import "PulleyCDelegate.h"
-#import "PulleyCDisplayMode.h"
-#import "PulleyCPanelCornerPlacement.h"
-#import "PulleyCPosition.h"
-#import "PulleyCSnapMode.h"
 #import "PulleyCViewController.h"
-#import "UIView+ConstraintToParent.h"
 #import "PulleyCPassthroughScrollView.h"
-
+#import "PulleyCPanelCornerPlacement.h"
+#import "PulleyCSnapMode.h"
+#import "PulleyCDisplayMode.h"
+#import "PulleyCPosition.h"
+#import "UIView+ConstraintToParent.h"
 #endif /* PulleyCHead_h */

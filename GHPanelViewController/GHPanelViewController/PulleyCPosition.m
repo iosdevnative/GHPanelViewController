@@ -12,7 +12,7 @@ static NSString * const Collapsed          = @"collapsed";
 static NSString * const Partiallyrevealed  = @"partiallyrevealed";
 static NSString * const Open               = @"open";
 static NSString * const Closed             = @"closed";
-static NSString * const NotAvailable       = @"N/A";
+
 @interface PulleyCPosition ()
 @property (nonatomic, assign, readwrite) int rawValue;
 @end
@@ -83,19 +83,19 @@ static NSString * const NotAvailable       = @"N/A";
 {
   switch ([self rawValue]) {
     case 0:
-      return Collapsed;
+      return @"Collapsed";
       break;
     case 1:
-      return Partiallyrevealed;
+      return @"partiallyRevealed";
       break;
     case 2:
-      return Open;
+      return @"Open";
       break;
     case 3:
-      return Closed;
+      return @"Closed";
       break;
     default:
-      return NotAvailable;
+      return @"N/A";
       break;
   }
 }

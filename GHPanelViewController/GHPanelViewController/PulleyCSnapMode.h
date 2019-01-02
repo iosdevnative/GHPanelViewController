@@ -15,8 +15,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// - nearestPositionUnlessExceeded: Snap to the nearest position when scroll stops, unless the distance is greater than 'threshold', in which case advance to the next drawer position.
 @interface PulleyCSnapMode : NSObject
 + (PulleyCSnapMode *) nearestPosition;
-+ (PulleyCSnapMode *) nearestPositionUnlessExceeded:(CGFloat) value;
-- (CGFloat) rawValue;
++ (PulleyCSnapMode *) nearestPositionUnlessExceeded:(int) value;
+- (int) rawValue;
 @end
 
 NS_ASSUME_NONNULL_END
