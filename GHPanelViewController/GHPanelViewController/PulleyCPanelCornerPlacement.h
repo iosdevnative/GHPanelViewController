@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+
 NS_ASSUME_NONNULL_BEGIN
 /// Represents the positioning of the drawer when the `displayMode` is set to either `PulleyDisplayMode.panel` or `PulleyDisplayMode.automatic`.
 ///
@@ -21,8 +22,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (class, nonatomic, readonly) PulleyCPanelCornerPlacement *bottomLeft;
 @property (class, nonatomic, readonly) PulleyCPanelCornerPlacement *bottomRight;
 
-- (instancetype) initWithRawValue:(int)value;
-- (int) rawValue;
 
 @end
 
