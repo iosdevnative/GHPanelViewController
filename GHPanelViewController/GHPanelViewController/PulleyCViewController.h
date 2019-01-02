@@ -214,6 +214,8 @@ typedef struct DrawerDistanceFromBottom {
 
 - (void) drawerChangedDistanceFromBottom:(PulleyCViewController *) drawer distance:(CGFloat)distance bottomSafeArea:(CGFloat)safeArea;
 
+
+- (void) setDrawerToHidden:(BOOL) flag;
 @end
 
 NS_ASSUME_NONNULL_END

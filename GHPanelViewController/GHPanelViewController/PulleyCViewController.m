@@ -907,7 +907,6 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20.0;
 
 - (NSArray<NSNumber *> *)getStopList {
   NSMutableArray<NSNumber *> *drawerStops = [NSMutableArray<NSNumber *> array];
-  
   CGFloat collapsedHeight = kPulleyCDefaultCollapsedHeight;
   CGFloat partialRevealHeight = kPulleyCDefaultPartialRevealHeight;
   
@@ -920,8 +919,6 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20.0;
     if ([(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] respondsToSelector:@selector(partialRevealDrawerHeight:)]) {
       partialRevealHeight = [(UIViewController<PulleyCDrawerViewControllerDelegate> *)[self drawerContentViewController] partialRevealDrawerHeight: [self pulleySafeAreaInsets].bottom];
     }
-
-
   }
   
   if ([[self supportedPositions] containsObject:PulleyCPosition.collapsed]) {
@@ -1411,6 +1408,10 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20.0;
   [self removeObserver:self forKeyPath:@"currentDisplayMode"];
 }
 
+
+- (void) setDrawerToHidden:(BOOL) flag {
+  [[self drawerScrollView] setHidden:flag];
+}
 
 @end
 
