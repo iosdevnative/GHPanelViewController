@@ -10,66 +10,37 @@
 
 
 @interface PulleyCPanelCornerPlacement ()
-@property (nonatomic, assign) int value;
+@property (nonatomic, assign) int rawValue;
 
 @end
 
 
 @implementation PulleyCPanelCornerPlacement
 
-- (instancetype)initWithRawValue:(int)rawValue {
+- (instancetype)initWithRawVale:(int)rawValue {
     if ([super init]) {
-        if (rawValue > 3 || rawValue < 0) {
-            rawValue = 0;
-        }
-        [self setValue:rawValue];
+        [self setRawValue:rawValue];
     }
     return self;
 }
 
 + (PulleyCPanelCornerPlacement *)topLeft {
-    return [[PulleyCPanelCornerPlacement alloc] initWithRawValue:0];
+    return [[PulleyCPanelCornerPlacement alloc] initWithRawVale:0];
 }
 
 + (PulleyCPanelCornerPlacement *)topRight {
-    return [[PulleyCPanelCornerPlacement alloc] initWithRawValue:1];
+    return [[PulleyCPanelCornerPlacement alloc] initWithRawVale:1];
 }
 
 + (PulleyCPanelCornerPlacement *)bottomLeft {
-    return [[PulleyCPanelCornerPlacement alloc] initWithRawValue:2];
+    return [[PulleyCPanelCornerPlacement alloc] initWithRawVale:2];
 }
 
 + (PulleyCPanelCornerPlacement *)bottomRight {
-    return [[PulleyCPanelCornerPlacement alloc] initWithRawValue:3];
+    return [[PulleyCPanelCornerPlacement alloc] initWithRawVale:3];
 }
 
 - (BOOL)isEqual:(PulleyCPanelCornerPlacement *)object {
-    return [self rawValue] == [object rawValue];
+  return [self rawValue] == [object rawValue];
 }
-
-- (int)rawValue {
-    return [self value];
-}
-
-- (NSString *)description
-{
-    switch ([self value]) {
-        case 0:
-            return @"Top Left";
-            break;
-        case 1:
-            return @"Top Right";
-            break;
-        case 2:
-            return @"Bottom Left";
-            break;
-        case 3:
-            return @"Bottom Right";
-            break;
-        default:
-            return @"N/A";
-            break;
-    }
-}
-
 @end
