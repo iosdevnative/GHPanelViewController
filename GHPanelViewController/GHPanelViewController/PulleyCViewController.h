@@ -16,8 +16,8 @@ NS_ASSUME_NONNULL_BEGIN
 typedef void(^PulleyAnimationCompletionBlock)(BOOL finished);
 
 typedef struct DrawerDistanceFromBottom {
-  CGFloat distance;
-  CGFloat bottomSafeArea;
+    CGFloat distance;
+    CGFloat bottomSafeArea;
 } DrawerDistanceFromBottom;
 
 @interface UIViewController (TestTest)
@@ -170,7 +170,7 @@ typedef struct DrawerDistanceFromBottom {
  
  - returns: A newly created Pulley drawer.
  */
-- (instancetype) initWithContentViewController:(UIViewController *) contentViewController drawerViewController:(UIViewController *) drawer;
+- (instancetype) intiWithContentViewController:(UIViewController *) contentViewController drawerViewController:(UIViewController *) drawer;
 /**
  Initialize the drawer controller from Interface Builder.
  
@@ -194,14 +194,14 @@ typedef struct DrawerDistanceFromBottom {
 - (void) bounceDrawer:(CGFloat) height speedMultiplier:(CGFloat) multimplier;
 
 - (void) setDrawerPosition:(PulleyCPosition *) position animated:(BOOL) animated;
-- (void) setDrawerPosition:(PulleyCPosition *) position animated:(BOOL) animated completion:(PulleyAnimationCompletionBlock) completion;
+- (void) setDrawerPosition:(PulleyCPosition *) position animated:(BOOL) animated completion:(nullable PulleyAnimationCompletionBlock) completion;
 
 - (void) setPrimaryContentViewController:(UIViewController *) controller animated:(BOOL) animated completion:(_Nullable  PulleyAnimationCompletionBlock) completion;
 
 - (void) setPrimaryContentViewController:(UIViewController *) controller animated:(BOOL) animated;
 
-- (void) setDrawerContentViewController:(UIViewController *) controller animated:(BOOL) animated completion:(_Nullable PulleyAnimationCompletionBlock) completion;
-- (void) setDrawerContentViewController:(UIViewController *) controller animated:(BOOL) animated;
+- (void) setDrawerContentViewController:(nullable UIViewController *) controller animated:(BOOL) animated completion:(_Nullable PulleyAnimationCompletionBlock) completion;
+- (void) setDrawerContentViewController:(nullable UIViewController *) controller animated:(BOOL) animated;
 
 - (CGFloat) collapsedDrawerHeight:(CGFloat) bottomSafeArea;
 
@@ -215,9 +215,6 @@ typedef struct DrawerDistanceFromBottom {
 
 - (void) drawerChangedDistanceFromBottom:(PulleyCViewController *) drawer distance:(CGFloat)distance bottomSafeArea:(CGFloat)safeArea;
 
-
-// Hide bottom menu
-- (void) isBottomDrawerHidden:(BOOL) flag;
 
 @end
 

@@ -9,12 +9,12 @@
 #import "PulleyCSnapMode.h"
 
 @interface PulleyCSnapMode ()
-@property (nonatomic, assign) CGFloat value;
+@property (nonatomic, assign) int value;
 @end
 
 
 @implementation PulleyCSnapMode
-- (instancetype)initWithRawValue:(CGFloat) rawValue
+- (instancetype)initWithRawValue:(int) rawValue
 {
   self = [super init];
   if (self) {
@@ -24,16 +24,29 @@
 }
 
 + (PulleyCSnapMode *)nearestPosition {
-  return [[PulleyCSnapMode alloc] initWithRawValue:0.0];
+  return [[PulleyCSnapMode alloc] initWithRawValue:0];
 }
-+ (PulleyCSnapMode *)nearestPositionUnlessExceeded:(CGFloat)value {
++ (PulleyCSnapMode *)nearestPositionUnlessExceeded:(int)value {
   return [[PulleyCSnapMode  alloc] initWithRawValue:value];
 }
 
 - (BOOL)isEqual:(PulleyCSnapMode *)object {
   return [self value] == [object value];
 }
-- (CGFloat)rawValue {
+- (int)rawValue {
   return [self value];
+}
+
+- (NSString *)description
+{
+    switch ([self value]) {
+        case 0:
+            return @"Nearest Position";
+            break;
+            
+        default:
+            return @"Nearest Position Unless Exceeded";
+            break;
+    }
 }
 @end
