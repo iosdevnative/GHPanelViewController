@@ -33,6 +33,15 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20;
 @property (nonatomic, strong, readwrite) PulleyCDisplayMode *currentDisplayMode;
 @property (nonatomic, assign) BOOL isAnimatingDrawerPosition;
 
+
+@property (nonatomic, strong) NSDate *startTime;
+@property (nonatomic, strong) NSTimer *timer;
+
+@property (nonatomic, assign) CGPoint startOffset;
+@property (nonatomic, assign) CGPoint destinationOffset;
+
+
+
 - (void) setDefault;
 @end
 
@@ -858,6 +867,38 @@ static CGFloat const kPulleyCBounceOverflowMargin = 20;
     
     
 }
+
+
+- (void) runScrollViewAnimationToOffset:(CGPoint) offset {
+    [self setStartTime:[NSDate date]];
+    [self setStartOffset:[[self drawerScrollView] contentOffset]];
+    [self setDestinationOffset:offset];
+    if ([self timer] == nil) {
+        [self setTimer: [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(animateScrollViewOffset:) userInfo:nil repeats:true]];
+    }
+}
+
+- (void) animateScrollViewOffset: (NSTimer *) timerParam {
+    const NSTimeInterval duration = [self animationDuration];
+    NSTimeInterval timeRunning = - [[self startTime] timeIntervalSinceNow];
+    if (timeRunning >= duration) {
+        //        [[self drawerScrollView] setContrentOffset:[self destinationOffset] animated:false];
+        [[self drawerScrollView] setContentOffset: [self destinationOffset] animated:false];
+        [[self timer] invalidate];
+        _timer = nil;
+        return;
+    }
+    CGPoint offSet = [[self drawerScrollView] contentOffset];
+    offSet.y = [self startOffset].y + ([self destinationOffset].y - [self startOffset].y) * timeRunning / duration;
+    [[self drawerScrollView] setContentOffset:offSet animated:false];
+}
+
+
+
+
+
+
+
 
 - (void)setDrawerPosition:(PulleyCPosition *)position animated:(BOOL)animated {
     
